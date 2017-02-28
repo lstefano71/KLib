@@ -16,5 +16,7 @@ Finally execute:
     klib import < filename.txt
 
 That's it.
+
 Empty lines and lines beginning with `#` are ignored.
+
 Only supports K5.x. It might work in other versions. But I don't know.
