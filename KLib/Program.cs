@@ -39,16 +39,19 @@ namespace KLib
 								from r in key.OpenSubKey(a).Use()
 								let d = r.GetValue(vName)
 								where d != null
-									&& r.GetValueKind(vName) == RegistryValueKind.DWord
+									&& r.GetValueKind(vName) == RegistryValueKind.DWord								
 								let n = (int)d
+								let p = r.GetValue("ContentDir")
+								where p != null
 								orderby n ascending
 								select new {
 									Index = n,
-									Name = a
+									Name = a,
+									Dir = (string) p
 								};
 
 				foreach (var s in q.WithIndex()) {
-					Console.WriteLine($"# {s.Item1} {s.Item2.Index:D3}-{s.Item2.Name}");
+					Console.WriteLine($"# {s.Item2.Dir} {s.Item2.Index:D3}-{s.Item2.Name}");
 					Console.WriteLine(s.Item2.Name);
 				}
 			}
