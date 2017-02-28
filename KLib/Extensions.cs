@@ -28,11 +28,12 @@ namespace KLib.Extensions
 			return lhs.Select(x => new Tuple<Int32, X>(++index, x));
 		}
 
-		public static IEnumerable<string> FromReader(this TextReader input)
+		public static IEnumerable<Tuple<int,string>> FromReader(this TextReader input)
 		{
 			string s;
+			int line = 0;
 			while((s=input.ReadLine()) != null) {
-				yield return s;
+				yield return Tuple.Create(++line,s);
 			}
 		}
 	}
