@@ -12,6 +12,7 @@ namespace KLib
 	{
 		private const string vName = "UserListIndex";
 		private const string registryRoot = @"Software\Native Instruments\";
+		private const string contentDir = "ContentDir";
 
 		static void Main(string[] args)
 		{
@@ -34,22 +35,25 @@ namespace KLib
 
 		static void Export()
 		{
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryRoot)) {
+			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryRoot))
+			using (var lk = Registry.LocalMachine.OpenSubKey(registryRoot)) {
 				var q = from a in key.GetSubKeyNames()
 								from r in key.OpenSubKey(a).Use()
+								from r1 in lk.OpenSubKey(a).Use()
 								let d = r.GetValue(vName)
 								where d != null
-									&& r.GetValueKind(vName) == RegistryValueKind.DWord								
+									&& r.GetValueKind(vName) == RegistryValueKind.DWord
 								let n = (int)d
 								orderby n ascending
 								select new {
 									Index = n,
-									Name = a
+									Name = a,
+									Path = (string) r1.GetValue(contentDir)
 								};
 
 				foreach (var s in q.WithIndex()) {
 					Console.WriteLine($"# {s.Item2.Index:D3}-{s.Item2.Name}");
-					Console.WriteLine(s.Item2.Name);
+					Console.WriteLine($"{s.Item2.Name} # {s.Item2.Path ?? ""}");
 				}
 			}
 
@@ -59,8 +63,8 @@ namespace KLib
 		{
 			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryRoot)) {
 				var q = from l in Console.In.FromReader()
-								let s = l.Item2.Trim()
-								where !string.IsNullOrEmpty(s) && s[0] != '#'
+								let s = Parse(l.Item2)
+								where !string.IsNullOrEmpty(s)
 								from r in key.OpenSubKey(s, true).Use()
 								select new {
 									Name = s,
@@ -81,6 +85,12 @@ namespace KLib
 					Console.WriteLine($"Ignored: Line {s.Line}, \"{s.Name}\"");
 				}
 			}
+		}
+
+		private static string Parse(string s)
+		{
+			var i = s.IndexOf("#");
+			return s.Substring(0, i >= 0 ? i : s.Length).Trim();
 		}
 	}
 }

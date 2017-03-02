@@ -17,6 +17,7 @@ Finally execute:
 
 That's it.
 
-Empty lines and lines beginning with `#` are ignored.
+The lines are considered only up to the first `#` character and empty lines are ignored.
+This means that lines beginning with `#` are also ignored.
 
 Only supports K5.x. It might work in other versions. But I don't know.
