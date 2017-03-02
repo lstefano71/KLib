@@ -11,7 +11,7 @@ namespace KLib
 	class Program
 	{
 		private const string vName = "UserListIndex";
-		private const string registryRoot = @"Software\Native Instruments\";
+		private const string registryRoot = @"Software\Native Instruments";
 		private const string contentDir = "ContentDir";
 
 		static void Main(string[] args)
@@ -35,7 +35,7 @@ namespace KLib
 
 		static void Export()
 		{
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryRoot))
+			using (var key = Registry.CurrentUser.OpenSubKey(registryRoot))
 			using (var lk = Registry.LocalMachine.OpenSubKey(registryRoot)) {
 				var q = from a in key.GetSubKeyNames()
 								from r in key.OpenSubKey(a).Use()
@@ -48,7 +48,7 @@ namespace KLib
 								select new {
 									Index = n,
 									Name = a,
-									Path = (string) r1.GetValue(contentDir)
+									Path = r1!= null ? r1.GetValue(contentDir) as string : null
 								};
 
 				foreach (var s in q.WithIndex()) {
@@ -61,7 +61,7 @@ namespace KLib
 
 		static void Import()
 		{
-			using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryRoot)) {
+			using (var key = Registry.CurrentUser.OpenSubKey(registryRoot)) {
 				var q = from l in Console.In.FromReader()
 								let s = Parse(l.Item2)
 								where !string.IsNullOrEmpty(s)
